@@ -75,6 +75,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("dropItemInHand", "boolean", this::dropItemInHand),
 		new MemberFunction("dropAll", "itemStack", this::dropAll),
 		new MemberFunction("look", List.of("yaw", "pitch"), this::look),
+		new MemberFunction("fakeLook", List.of("yaw", "pitch", "direction"), this::fakeLook),
 		new MemberFunction("lookAtPos", List.of("x", "y", "z"), this::lookAtPos),
 		new MemberFunction("jump", this::jump),
 		new MemberFunction("getLookingAtEntity", this::getLookingAtEntity),
