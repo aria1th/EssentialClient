@@ -143,7 +143,6 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 			throw function.throwInvalidParameterError(error, context);
 		}
 		ClientPlayerEntity player = this.getPlayer(context, function);
-		player.getInventory().selectedSlot = numberValue.value.intValue();
 		ClientPlayNetworkHandler networkHandler = ArucasMinecraftExtension.getNetworkHandler();
 		ArucasMinecraftExtension.getClient().execute(()->{player.getInventory().selectedSlot = numberValue.value.intValue();
 			networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(numberValue.value.intValue()));});
