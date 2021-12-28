@@ -11,6 +11,7 @@ import me.senseiwells.arucas.utils.Context;
 import me.senseiwells.arucas.values.*;
 import me.senseiwells.arucas.values.functions.MemberFunction;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.item.ItemStack;
@@ -45,6 +46,7 @@ public class ArucasAbstractPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("getGamemode", this::getGamemode),
 		new MemberFunction("getTotalSlots", this::getTotalSlots),
 		new MemberFunction("getItemForSlot", "slot", this::getItemForSlot),
+		new MemberFunction("getItemForPlayerSlot","slot", this::getItemForPlayerSlot),
 		new MemberFunction("getSlotFor", "itemStack", this::getSlotFor),
 		new MemberFunction("getAllSlotsFor", "itemStack", this::getAllSlotsFor),
 		new MemberFunction("getAbilities", this::getAbilities),
@@ -75,7 +77,15 @@ public class ArucasAbstractPlayerMembers implements IArucasValueExtension {
 		ItemStack itemStack = screenHandler.slots.get(index).getStack();
 		return new ItemStackValue(itemStack);
 	}
-
+	private Value<?> getItemForPlayerSlot(Context context, MemberFunction function) throws CodeError {
+		AbstractClientPlayerEntity player = this.getOtherPlayer(context, function);
+		int slot = function.getParameterValueOfType(context, NumberValue.class, 1).value.intValue();
+		if (slot < 0 || slot > player.getInventory().main.size()) {
+			throw new RuntimeError("slot number is not valid", function.syntaxPosition, context);
+		}
+		ItemStack itemStack = player.getInventory().main.get(slot); //slot order might be mixed but main locates hotbar slot at first
+		return new ItemStackValue(itemStack);
+	}
 	private Value<?> getSlotFor(Context context, MemberFunction function) throws CodeError {
 		ItemStackValue itemStackValue = function.getParameterValueOfType(context, ItemStackValue.class, 1);
 		ScreenHandler screenHandler = this.getOtherPlayer(context, function).currentScreenHandler;

@@ -88,8 +88,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("jump", this::jump),
 		new MemberFunction("getLookingAtEntity", this::getLookingAtEntity),
 		new MemberFunction("swapSlots", List.of("slot1", "slot2"), this::swapSlots),
-		new MemberFunction("getItemForMainSlot","slot", this::getItemForMainSlot),
-		new MemberFunction("swapMainSlotWithHotbar","slot1", this::swapMainSlotWithHotbar),
+		new MemberFunction("swapPlayerSlotWithHotbar","slot1", this::swapPlayerSlotWithHotbar),
 		new MemberFunction("shiftClickSlot", "slot", this::shiftClickSlot),
 		new MemberFunction("dropSlot", "slot", this::dropSlot),
 		new MemberFunction("getCurrentScreen", this::getCurrentScreen),
@@ -110,16 +109,6 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("isTradeDisabled", "index", this::isTradeDisabled),
 		new MemberFunction("getPriceForIndex", "index", this::getPriceForIndex)
 	);
-
-	private Value<?> getItemForMainSlot(Context context, MemberFunction function) throws CodeError {
-		ClientPlayerEntity player = this.getPlayer(context, function);
-		int slot = function.getParameterValueOfType(context, NumberValue.class, 1).value.intValue();
-		if (slot < 0 || slot > player.getInventory().main.size()) {
-			throw new RuntimeError("slot number is not valid", function.syntaxPosition, context);
-		}
-		ItemStack itemStack = player.getInventory().main.get(slot); //slot order might be mixed but main locates hotbar slot at first
-		return new ItemStackValue(itemStack);
-	}
 
 	private Value<?> use(Context context, MemberFunction function) throws CodeError {
 		this.checkMainPlayer(context, function);
@@ -307,7 +296,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		});
 		return NullValue.NULL;
 	}
-	private Value<?> swapMainSlotWithHotbar(Context context, MemberFunction function) throws CodeError {
+	private Value<?> swapPlayerSlotWithHotbar(Context context, MemberFunction function) throws CodeError {
 		NumberValue numberValue1 = function.getParameterValueOfType(context, NumberValue.class, 1);
 		ClientPlayerEntity player = this.getPlayer(context, function);
 		ClientPlayNetworkHandler networkHandler = ArucasMinecraftExtension.getNetworkHandler();
