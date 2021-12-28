@@ -82,7 +82,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("dropItemInHand", "boolean", this::dropItemInHand),
 		new MemberFunction("dropAll", "itemStack", this::dropAll),
 		new MemberFunction("look", List.of("yaw", "pitch"), this::look),
-		new MemberFunction("fakeLook", List.of("yaw", "pitch", "direction"), this::fakeLook),
+		new MemberFunction("fakeLook", List.of("yaw", "pitch", "direction", "duration"), this::fakeLook),
 		new MemberFunction("lookAtPos", List.of("x", "y", "z"), this::lookAtPos),
 		new MemberFunction("jump", this::jump),
 		new MemberFunction("getLookingAtEntity", this::getLookingAtEntity),
@@ -97,6 +97,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("anvilRename", List.of("name", "predicate"), this::anvilRename),
 		new MemberFunction("stonecutter", List.of("itemInput", "itemOutput"), this::stonecutter),
 		new MemberFunction("updateBreakingBlock", List.of("x", "y", "z"), this::updateBreakingBlock),
+		new MemberFunction("attackBlock", List.of("x", "y", "z", "direction"), this::attackBlock),
 		new MemberFunction("interactBlock", List.of("px", "py", "pz", "face", "bx", "by", "bz", "insideBlock"), this::interactBlock),
 		// Villager Stuff
 		new MemberFunction("tradeIndex", "index", this::tradeIndex),
@@ -240,10 +241,13 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		NumberValue numberValue = function.getParameterValueOfType(context, NumberValue.class, 1);
 		NumberValue numberValue2 = function.getParameterValueOfType(context, NumberValue.class, 2);
 		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 3).value);
+		int duration = (int) Math.ceil(function.getParameterValueOfType(context, NumberValue.class, 4).value);
+		duration = duration>0? duration : 3;
 		BetterAccurateBlockPlacement.onRequest = true;
 		BetterAccurateBlockPlacement.fakeRequestYaw = numberValue.value.floatValue();
 		BetterAccurateBlockPlacement.fakeRequestPitch = numberValue2.value.floatValue();
 		BetterAccurateBlockPlacement.fakeDirection = direction;
+		BetterAccurateBlockPlacement.count = duration;
 		return NullValue.NULL;
 	}
 	private Value<?> lookAtPos(Context context, MemberFunction function) throws CodeError {
@@ -494,7 +498,15 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		this.getPlayer(context, function).swingHand(Hand.MAIN_HAND);
 		return NullValue.NULL;
 	}
-
+	private Value<?> attackBlock(Context context, MemberFunction function) throws CodeError {
+		ClientPlayerInteractionManager interactionManager = ArucasMinecraftExtension.getInteractionManager();
+		double x = function.getParameterValueOfType(context, NumberValue.class, 1).value;
+		double y = function.getParameterValueOfType(context, NumberValue.class, 2).value;
+		double z = function.getParameterValueOfType(context, NumberValue.class, 3).value;
+		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 4).value);
+		ArucasMinecraftExtension.getClient().execute(()-> interactionManager.attackBlock(new BlockPos(x,y,z), direction));
+		return NullValue.NULL;
+	}
 	private Value<?> interactBlock(Context context, MemberFunction function) throws CodeError {
 		//carpet protocol support but why not client side?
 		double px = function.getParameterValueOfType(context, NumberValue.class, 1).value;
