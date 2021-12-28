@@ -86,10 +86,10 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("fakeLook", List.of("yaw", "pitch", "direction", "duration"), this::fakeLook),
 		new MemberFunction("lookAtPos", List.of("x", "y", "z"), this::lookAtPos),
 		new MemberFunction("jump", this::jump),
-		new MemberFunction("getItemForSlot","slot", this::getitemForSlot),
 		new MemberFunction("getLookingAtEntity", this::getLookingAtEntity),
 		new MemberFunction("swapSlots", List.of("slot1", "slot2"), this::swapSlots),
-		new MemberFunction("swapSlotWithHotbar","slot1", this::swapSlotWithHotbar),
+		new MemberFunction("getItemForMainSlot","slot", this::getItemForMainSlot),
+		new MemberFunction("swapMainSlotWithHotbar","slot1", this::swapMainSlotWithHotbar),
 		new MemberFunction("shiftClickSlot", "slot", this::shiftClickSlot),
 		new MemberFunction("dropSlot", "slot", this::dropSlot),
 		new MemberFunction("getCurrentScreen", this::getCurrentScreen),
@@ -111,11 +111,13 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("getPriceForIndex", "index", this::getPriceForIndex)
 	);
 
-	private Value<?> getitemForSlot(Context context, MemberFunction function) throws CodeError {
+	private Value<?> getItemForMainSlot(Context context, MemberFunction function) throws CodeError {
 		ClientPlayerEntity player = this.getPlayer(context, function);
 		int slot = function.getParameterValueOfType(context, NumberValue.class, 1).value.intValue();
-		if (slot < 0 || slot > 40){throw new RuntimeError("slot number is not valid", function.syntaxPosition, context); }
-		ItemStack itemStack = player.getInventory().main.get(slot);
+		if (slot < 0 || slot > player.getInventory().main.size()) {
+			throw new RuntimeError("slot number is not valid", function.syntaxPosition, context);
+		}
+		ItemStack itemStack = player.getInventory().main.get(slot); //slot order might be mixed but main locates hotbar slot at first
 		return new ItemStackValue(itemStack);
 	}
 
@@ -305,14 +307,19 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		});
 		return NullValue.NULL;
 	}
-	private Value<?> swapSlotWithHotbar(Context context, MemberFunction function) throws CodeError {
+	private Value<?> swapMainSlotWithHotbar(Context context, MemberFunction function) throws CodeError {
 		NumberValue numberValue1 = function.getParameterValueOfType(context, NumberValue.class, 1);
 		ClientPlayerEntity player = this.getPlayer(context, function);
 		ClientPlayNetworkHandler networkHandler = ArucasMinecraftExtension.getNetworkHandler();
-		if (numberValue1.value < 0 || numberValue1.value > 40) {
+		if (numberValue1.value < 0 || numberValue1.value > player.getInventory().main.size()) {
 			throw new RuntimeError("That slot is out of bounds", function.syntaxPosition, context);
 		}
-		ArucasMinecraftExtension.getClient().execute(()->{player.getInventory().swapSlotWithHotbar(numberValue1.value.intValue());
+		//45 = offhand, 46 = 0th hand, 1 2 3 4 craft, 5 6 7 8 armor, 9-17 1st line, 18-26 2nd line, 27-35 3rd line,36 crafted result?, 37-44 2~9th slot of hotbar, 0 = cursorstack?
+		//main index is shuffled when screen is opened so its reliable way is to directly modify main inventory
+		int prepareSlot = player.getInventory().getSwappableHotbarSlot();
+		ArucasMinecraftExtension.getClient().execute(()->{
+			networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(prepareSlot));
+			player.getInventory().swapSlotWithHotbar(numberValue1.value.intValue());
 			networkHandler.sendPacket(new PickFromInventoryC2SPacket(numberValue1.value.intValue()));});
 		return NullValue.NULL;
 	}
