@@ -29,6 +29,7 @@ import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.c2s.play.PickFromInventoryC2SPacket;
 import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.recipe.StonecuttingRecipe;
@@ -85,8 +86,10 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("fakeLook", List.of("yaw", "pitch", "direction", "duration"), this::fakeLook),
 		new MemberFunction("lookAtPos", List.of("x", "y", "z"), this::lookAtPos),
 		new MemberFunction("jump", this::jump),
+		new MemberFunction("getItemForSlot","slot", this::getitemForSlot),
 		new MemberFunction("getLookingAtEntity", this::getLookingAtEntity),
 		new MemberFunction("swapSlots", List.of("slot1", "slot2"), this::swapSlots),
+		new MemberFunction("swapSlotWithHotbar","slot1", this::swapSlotWithHotbar),
 		new MemberFunction("shiftClickSlot", "slot", this::shiftClickSlot),
 		new MemberFunction("dropSlot", "slot", this::dropSlot),
 		new MemberFunction("getCurrentScreen", this::getCurrentScreen),
@@ -107,6 +110,14 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("isTradeDisabled", "index", this::isTradeDisabled),
 		new MemberFunction("getPriceForIndex", "index", this::getPriceForIndex)
 	);
+
+	private Value<?> getitemForSlot(Context context, MemberFunction function) throws CodeError {
+		ClientPlayerEntity player = this.getPlayer(context, function);
+		int slot = function.getParameterValueOfType(context, NumberValue.class, 1).value.intValue();
+		if (slot < 0 || slot > 40){throw new RuntimeError("slot number is not valid", function.syntaxPosition, context); }
+		ItemStack itemStack = player.getInventory().main.get(slot);
+		return new ItemStackValue(itemStack);
+	}
 
 	private Value<?> use(Context context, MemberFunction function) throws CodeError {
 		this.checkMainPlayer(context, function);
@@ -140,9 +151,11 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		if (numberValue.value < 0 || numberValue.value > 8) {
 			throw function.throwInvalidParameterError(error, context);
 		}
-		this.getPlayer(context, function).getInventory().selectedSlot = numberValue.value.intValue();
+		ClientPlayerEntity player = this.getPlayer(context, function);
+		player.getInventory().selectedSlot = numberValue.value.intValue();
 		ClientPlayNetworkHandler networkHandler = ArucasMinecraftExtension.getNetworkHandler();
-		ArucasMinecraftExtension.getClient().execute(()->networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(numberValue.value.intValue())));
+		ArucasMinecraftExtension.getClient().execute(()->{player.getInventory().selectedSlot = numberValue.value.intValue();
+			networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(numberValue.value.intValue()));});
 		return NullValue.NULL;
 	}
 
@@ -292,7 +305,17 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		});
 		return NullValue.NULL;
 	}
-
+	private Value<?> swapSlotWithHotbar(Context context, MemberFunction function) throws CodeError {
+		NumberValue numberValue1 = function.getParameterValueOfType(context, NumberValue.class, 1);
+		ClientPlayerEntity player = this.getPlayer(context, function);
+		ClientPlayNetworkHandler networkHandler = ArucasMinecraftExtension.getNetworkHandler();
+		if (numberValue1.value < 0 || numberValue1.value > 40) {
+			throw new RuntimeError("That slot is out of bounds", function.syntaxPosition, context);
+		}
+		ArucasMinecraftExtension.getClient().execute(()->{player.getInventory().swapSlotWithHotbar(numberValue1.value.intValue());
+			networkHandler.sendPacket(new PickFromInventoryC2SPacket(numberValue1.value.intValue()));});
+		return NullValue.NULL;
+	}
 	private Value<?> shiftClickSlot(Context context, MemberFunction function) throws CodeError {
 		NumberValue numberValue1 = function.getParameterValueOfType(context, NumberValue.class, 1);
 		ScreenHandler screenHandler = this.getPlayer(context, function).currentScreenHandler;
