@@ -101,6 +101,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("updateBreakingBlock", List.of("x", "y", "z"), this::updateBreakingBlock),
 		new MemberFunction("attackBlock", List.of("x", "y", "z", "direction"), this::attackBlock),
 		new MemberFunction("interactBlock", List.of("px", "py", "pz", "face", "bx", "by", "bz", "insideBlock"), this::interactBlock),
+		new MemberFunction("getBlockBreakingSpeed", "blockState", this::getBlockBreakingSpeed),
 		// Villager Stuff
 		new MemberFunction("tradeIndex", "index", this::tradeIndex),
 		new MemberFunction("getIndexOfTradeItem", "itemStack", this::getIndexOfTrade),
@@ -541,6 +542,12 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		ClientWorld world = ArucasMinecraftExtension.getWorld();
 		ArucasMinecraftExtension.getClient().execute(()->interactionManager.interactBlock(player,world, Hand.MAIN_HAND, hitResult));
 		return NullValue.NULL;
+	}
+	private Value<?> getBlockBreakingSpeed(Context context, MemberFunction function) throws CodeError {
+		ClientPlayerEntity player = this.getPlayer(context, function);
+		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 1);
+		float breakingSpeed = player.getBlockBreakingSpeed(blockStateValue.value);
+		return new NumberValue(breakingSpeed);
 	}
 	private Value<?> tradeIndex(Context context, MemberFunction function) throws CodeError {
 		this.checkMainPlayer(context, function);
