@@ -14,6 +14,7 @@ import net.minecraft.state.property.Property;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 
 import java.util.List;
@@ -58,8 +59,22 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 		new MemberFunction("getZ", this::getBlockZ),
 		new MemberFunction("getY", this::getBlockY),
 		new MemberFunction("isReplaceable", this::isReplaceable),
-		new MemberFunction("getHardness", this::getHardness)
+		new MemberFunction("getHardness", this::getHardness),
+		new MemberFunction("sideCoversSmallSquare", this::sideCoversSmallSquare),
+		new MemberFunction("isSideSolidFullSquare", this::isSideSolidFullSquare)
 	);
+	private Value<?> sideCoversSmallSquare(Context context, MemberFunction function) throws  CodeError {
+		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
+		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 1).value);
+		if (direction == null){direction = Direction.DOWN;}
+		return BooleanValue.of(Block.sideCoversSmallSquare(ArucasMinecraftExtension.getWorld(), blockStateValue.blockPos, direction));
+	}
+	private Value<?> isSideSolidFullSquare(Context context, MemberFunction function) throws  CodeError {
+		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
+		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 1).value);
+		if (direction == null){direction = Direction.DOWN;}
+		return BooleanValue.of(blockStateValue.value.isSideSolidFullSquare(ArucasMinecraftExtension.getWorld(), blockStateValue.blockPos, direction));
+	}
 	private Value<?> isReplaceable(Context context, MemberFunction function) throws  CodeError {
 		BlockState blockState = this.getBlockState(context, function);
 		boolean replaceable = blockState.getMaterial().isReplaceable();
@@ -89,6 +104,7 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 		}
 		return new MapValue(propertyMap);
 	}
+
 	private Value<?> rotateYClockwise(Context context, MemberFunction function) throws CodeError{
 		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
 		return new BlockStateValue(blockStateValue.value.rotate(BlockRotation.CLOCKWISE_90));

@@ -1,6 +1,7 @@
 package essentialclient.clientscript.extensions;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import essentialclient.clientscript.ClientScript;
@@ -30,6 +31,8 @@ import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.CommandSource;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -92,6 +95,7 @@ public class ArucasMinecraftClientMembers implements IArucasValueExtension {
 		new MemberFunction("removeGameEvent", List.of("eventName", "id"), this::removeGameEvent),
 		new MemberFunction("removeAllGameEvents", this::removeAllGameEvents),
 		new MemberFunction("itemFromString", "name", this::itemFromString),
+		new MemberFunction("restoreItemFromNbtMap", "nbtMap", this::restoreItemFromNbtMap),
 		new MemberFunction("blockFromString", "name", this::blockFromString),
 		new MemberFunction("entityFromString", "name", this::entityFromString),
 		new MemberFunction("textFromString", "text", this::textFromString),
@@ -319,7 +323,19 @@ public class ArucasMinecraftClientMembers implements IArucasValueExtension {
 		StringValue stringValue = function.getParameterValueOfType(context, StringValue.class, 1);
 		return new ItemStackValue(Registry.ITEM.get(ArucasMinecraftExtension.getIdentifier(context, function.syntaxPosition, stringValue.value)).getDefaultStack());
 	}
+	private Value<?> restoreItemFromNbtMap(Context context, MemberFunction function) throws CodeError {
+		this.getClient(context, function);
+		ItemStack itemStack;
+		MapValue mapValue = function.getParameterValueOfType(context, MapValue.class, 1);
+		try{
+			itemStack = ItemStack.fromNbt(StringNbtReader.parse(mapValue.toString()));
+			return new ItemStackValue((itemStack));
+		}
+		catch (CommandSyntaxException exception){
+			throw new RuntimeError("Nbt map not valid", function.syntaxPosition, context);
+		}
 
+	}
 	private Value<?> blockFromString(Context context, MemberFunction function) throws CodeError {
 		this.getClient(context, function);
 		StringValue stringValue = function.getParameterValueOfType(context, StringValue.class, 1);

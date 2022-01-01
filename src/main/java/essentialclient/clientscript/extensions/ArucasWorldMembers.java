@@ -14,6 +14,7 @@ import me.senseiwells.arucas.utils.Context;
 import me.senseiwells.arucas.values.*;
 import me.senseiwells.arucas.values.functions.MemberFunction;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.PillarBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -25,6 +26,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 
 import java.util.List;
@@ -54,6 +56,7 @@ public class ArucasWorldMembers implements IArucasValueExtension {
 		new MemberFunction("getClosestPlayer", List.of("entity", "maxDistance"), this::getClosestPlayer),
 		new MemberFunction("getAllEntities", this::getAllEntities),
 		new MemberFunction("isAir", List.of("x", "y", "z"), this::isAir),
+		new MemberFunction("getEmittedRedstonePower", List.of("x", "y", "z", "direction"), this::getEmittedRedstonePower),
 		new MemberFunction("getEntityFromId", "id", this::getEntityFromId),
 		new MemberFunction("getDimensionName", (context, function) -> new StringValue(this.getWorld(context, function).getRegistryKey().getValue().getPath())),
 		new MemberFunction("isRaining", (context, function) -> BooleanValue.of(this.getWorld(context, function).isRaining())),
@@ -64,6 +67,19 @@ public class ArucasWorldMembers implements IArucasValueExtension {
 		new MemberFunction("spawnGhostEntity", List.of("entity", "x", "y", "z", "yaw", "pitch", "bodyYaw"), this::spawnGhostEntity),
 		new MemberFunction("removeGhostEntity", "entityId", this::removeFakeEntity)
 	);
+
+
+	private Value<?> getEmittedRedstonePower(Context context, MemberFunction function) throws CodeError {
+		final String error = "Position must be in range of player";
+		ClientWorld world = this.getWorld(context, function);
+		NumberValue num1 = function.getParameterValueOfType(context, NumberValue.class, 1, error);
+		NumberValue num2 = function.getParameterValueOfType(context, NumberValue.class, 2, error);
+		NumberValue num3 = function.getParameterValueOfType(context, NumberValue.class, 3, error);
+		BlockPos blockPos = new BlockPos(Math.floor(num1.value), num2.value, Math.floor(num3.value));
+		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 3).value);
+		int power = world.getEmittedRedstonePower(blockPos, direction);
+		return new NumberValue(power);
+	}
 
 	private Value<?> getBlockAt(Context context, MemberFunction function) throws CodeError {
 		final String error = "Position must be in range of player";
