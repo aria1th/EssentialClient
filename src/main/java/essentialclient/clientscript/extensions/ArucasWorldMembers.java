@@ -22,6 +22,7 @@ import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.particle.ParticleType;
@@ -76,7 +77,7 @@ public class ArucasWorldMembers implements IArucasValueExtension {
 		NumberValue num2 = function.getParameterValueOfType(context, NumberValue.class, 2, error);
 		NumberValue num3 = function.getParameterValueOfType(context, NumberValue.class, 3, error);
 		BlockPos blockPos = new BlockPos(Math.floor(num1.value), num2.value, Math.floor(num3.value));
-		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 3).value);
+		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 4).value);
 		int power = world.getEmittedRedstonePower(blockPos, direction);
 		return new NumberValue(power);
 	}

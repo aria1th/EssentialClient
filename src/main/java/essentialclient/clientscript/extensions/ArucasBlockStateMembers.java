@@ -5,6 +5,7 @@ import essentialclient.clientscript.values.ItemStackValue;
 import me.senseiwells.arucas.api.IArucasValueExtension;
 import me.senseiwells.arucas.throwables.CodeError;
 import me.senseiwells.arucas.throwables.RuntimeError;
+import me.senseiwells.arucas.utils.ArucasValueList;
 import me.senseiwells.arucas.utils.ArucasValueMap;
 import me.senseiwells.arucas.utils.Context;
 import me.senseiwells.arucas.values.*;
@@ -43,6 +44,7 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 		new MemberFunction("getBlockId", List.of(), (context, function) -> new StringValue(Registry.BLOCK.getId(this.getBlockState(context, function).getBlock()).getPath()), true),
 		new MemberFunction("isBlockEntity", (context, function) -> BooleanValue.of(this.getBlockState(context, function).getBlock() instanceof BlockEntityProvider)),
 		new MemberFunction("isTransparent", (context, function) -> BooleanValue.of(!this.getBlockState(context, function).isOpaque())),
+		new MemberFunction("isSolidBlock", this::isSolidBlock),
 		new MemberFunction("asItemStack", (context, function) -> new ItemStackValue(this.getBlockState(context, function).getBlock().asItem().getDefaultStack())),
 		new MemberFunction("getBlastResistance", (context, function) -> new NumberValue(this.getBlockState(context, function).getBlock().getBlastResistance())),
 		new MemberFunction("getBlockProperties", this::getBlockProperties),
@@ -55,13 +57,20 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 		new MemberFunction("getBlockX", this::getBlockX),
 		new MemberFunction("getBlockZ", this::getBlockZ),
 		new MemberFunction("getBlockY", this::getBlockY),
+		new MemberFunction("getBlockPos", this::getBlockPos),
+		new MemberFunction("getAddPos","otherBlock", this::getAddPos),
+		new MemberFunction("getOffsetDirectionPos",List.of("direction","int"), this::getOffsetDirectionPos),
+		new MemberFunction("getRotateClockwisePos", this::getRotateClockwisePos),
+		new MemberFunction("getRotateCounterClockwisePos", this::getRotateCounterClockwisePos),
+		new MemberFunction("getUnitVectorFromDirection","direction", this::getUnitVectorFromDirection),
+		new MemberFunction("refresh", this::refresh),
 		new MemberFunction("getX", this::getBlockX),
 		new MemberFunction("getZ", this::getBlockZ),
 		new MemberFunction("getY", this::getBlockY),
 		new MemberFunction("isReplaceable", this::isReplaceable),
 		new MemberFunction("getHardness", this::getHardness),
-		new MemberFunction("sideCoversSmallSquare", this::sideCoversSmallSquare),
-		new MemberFunction("isSideSolidFullSquare", this::isSideSolidFullSquare)
+		new MemberFunction("sideCoversSmallSquare","direction", this::sideCoversSmallSquare),
+		new MemberFunction("isSideSolidFullSquare","direction", this::isSideSolidFullSquare)
 	);
 	private Value<?> sideCoversSmallSquare(Context context, MemberFunction function) throws  CodeError {
 		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
@@ -79,6 +88,12 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 		BlockState blockState = this.getBlockState(context, function);
 		boolean replaceable = blockState.getMaterial().isReplaceable();
 		return BooleanValue.of(replaceable);
+	}
+	private Value<?> isSolidBlock(Context context, MemberFunction function) throws  CodeError {
+		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
+		BlockState blockState = blockStateValue.value;
+		boolean isSolid = blockState.isSolidBlock(ArucasMinecraftExtension.getWorld(), blockStateValue.blockPos);
+		return BooleanValue.of(isSolid);
 	}
 	private Value<?> getHardness(Context context, MemberFunction function) throws  CodeError {
 		BlockState blockState = this.getBlockState(context, function);
@@ -144,7 +159,55 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
 		return blockStateValue.getBlockZ();
 	}
-
+	private Value<?> getBlockPos(Context context, MemberFunction function) throws CodeError {
+		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
+		ArucasValueList posList = new ArucasValueList();
+		posList.add(new NumberValue(blockStateValue.blockPos.getX()));
+		posList.add(new NumberValue(blockStateValue.blockPos.getY()));
+		posList.add(new NumberValue(blockStateValue.blockPos.getZ()));
+		return new ListValue(posList);
+	}
+	private Value<?> getAddPos(Context context, MemberFunction function) throws CodeError {
+		BlockPos blockPos = function.getParameterValueOfType(context, BlockStateValue.class, 0).blockPos;
+		BlockPos blockPos2 = function.getParameterValueOfType(context, BlockStateValue.class, 1).blockPos;
+		BlockPos blockPosAdd = blockPos.add(blockPos2);
+		final BlockState blockStateDefault = Blocks.AIR.getDefaultState();
+		return new BlockStateValue(blockStateDefault, blockPosAdd);
+	}
+	private Value<?> getOffsetDirectionPos(Context context, MemberFunction function) throws CodeError {
+		final BlockState blockStateDefault = Blocks.AIR.getDefaultState();
+		BlockPos blockPos = function.getParameterValueOfType(context, BlockStateValue.class, 0).blockPos;
+		Direction offsetDir = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 1).value);
+		int intValue = function.getParameterValueOfType(context, NumberValue.class, 2).value.intValue();
+		if (offsetDir == null){ return new BlockStateValue(blockStateDefault, blockPos);}
+		return new BlockStateValue(blockStateDefault, blockPos.offset(offsetDir, intValue));
+	}
+	private Value<?> getRotateClockwisePos(Context context, MemberFunction function) throws CodeError {
+		final BlockState blockStateDefault = Blocks.AIR.getDefaultState();
+		BlockPos blockPos = function.getParameterValueOfType(context, BlockStateValue.class, 0).blockPos;
+		return new BlockStateValue(blockStateDefault, blockPos.rotate(BlockRotation.CLOCKWISE_90));
+	}
+	private Value<?> getRotateCounterClockwisePos(Context context, MemberFunction function) throws CodeError {
+		final BlockState blockStateDefault = Blocks.AIR.getDefaultState();
+		BlockPos blockPos = function.getParameterValueOfType(context, BlockStateValue.class, 0).blockPos;
+		return new BlockStateValue(blockStateDefault, blockPos.rotate(BlockRotation.COUNTERCLOCKWISE_90));
+	}
+	private Value<?> getUnitVectorFromDirection(Context context, MemberFunction function) throws CodeError {
+		final BlockState blockStateDefault = Blocks.AIR.getDefaultState();
+		Direction direction = Direction.byName(function.getParameterValueOfType(context, StringValue.class, 1).value);
+		if(direction == null){
+			throw new RuntimeError("Direction name is not valid", function.syntaxPosition, context);
+		}
+		return new BlockStateValue(blockStateDefault, new BlockPos(direction.getVector()));
+	}
+	private Value<?> refresh(Context context, MemberFunction function) throws CodeError {
+		BlockPos blockPos = function.getParameterValueOfType(context, BlockStateValue.class, 0).blockPos;
+		BlockState blockState = ArucasMinecraftExtension.getWorld().getBlockState(blockPos);
+		if (blockState == null) {
+			throw new RuntimeError("Block was null", function.syntaxPosition, context);
+		}
+		return new BlockStateValue(blockState, blockPos);
+	}
 	private BlockState getBlockState(Context context, MemberFunction function) throws CodeError {
 		BlockState block = function.getParameterValueOfType(context, BlockStateValue.class, 0).value;
 		if (block == null) {
