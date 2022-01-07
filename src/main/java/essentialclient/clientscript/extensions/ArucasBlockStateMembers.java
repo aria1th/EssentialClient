@@ -12,6 +12,7 @@ import me.senseiwells.arucas.values.*;
 import me.senseiwells.arucas.values.functions.MemberFunction;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FlowableFluid;
+import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -140,7 +141,10 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 	}
 	private Value<?> isFluid(Context context, MemberFunction function) throws CodeError{
 		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
-		return BooleanValue.of(!blockStateValue.value.isAir() && blockStateValue.value.getBlock() instanceof FluidDrainable || blockStateValue.value.getFluidState().getFluid() instanceof FlowableFluid);
+		boolean waterloggable = blockStateValue.value.getBlock() instanceof Waterloggable;
+		boolean waterlogged = waterloggable && blockStateValue.value.get(Properties.WATERLOGGED);
+		if(waterloggable && !waterlogged) {return BooleanValue.of(false);}
+		return BooleanValue.of(waterlogged || (blockStateValue.value.getBlock() instanceof FluidDrainable || blockStateValue.value.getFluidState().getFluid() instanceof FlowableFluid));
 	}
 	private Value<?> isFluidSource(Context context, MemberFunction function) throws CodeError{
 		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
