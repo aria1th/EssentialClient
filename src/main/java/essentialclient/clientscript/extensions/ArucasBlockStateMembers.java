@@ -11,6 +11,7 @@ import me.senseiwells.arucas.utils.Context;
 import me.senseiwells.arucas.values.*;
 import me.senseiwells.arucas.values.functions.MemberFunction;
 import net.minecraft.block.*;
+import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
@@ -54,6 +55,7 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 		new MemberFunction("mirrorLeftRight", this::mirrorLeftRight),
 		new MemberFunction("hasBlockPosition", this::hasBlockPosition),
 		new MemberFunction("isFluid", this::isFluid),
+		new MemberFunction("isFluidSource", this::isFluidSource),
 		new MemberFunction("getBlockX", this::getBlockX),
 		new MemberFunction("getBlockZ", this::getBlockZ),
 		new MemberFunction("getBlockY", this::getBlockY),
@@ -138,7 +140,12 @@ public class ArucasBlockStateMembers implements IArucasValueExtension {
 	}
 	private Value<?> isFluid(Context context, MemberFunction function) throws CodeError{
 		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
-		return BooleanValue.of(blockStateValue.value.getBlock() instanceof FluidDrainable);
+		return BooleanValue.of(!blockStateValue.value.isAir() && blockStateValue.value.getBlock() instanceof FluidDrainable || blockStateValue.value.getFluidState().getFluid() instanceof FlowableFluid);
+	}
+	private Value<?> isFluidSource(Context context, MemberFunction function) throws CodeError{
+		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
+		return BooleanValue.of(blockStateValue.value.getBlock() instanceof BubbleColumnBlock ||
+			blockStateValue.value.getBlock() instanceof FluidBlock && blockStateValue.value.get(FluidBlock.LEVEL) ==0 );
 	}
 	private Value<?> hasBlockPosition(Context context, MemberFunction function) throws CodeError {
 		BlockStateValue blockStateValue = function.getParameterValueOfType(context, BlockStateValue.class, 0);
