@@ -49,7 +49,8 @@ public class ArucasAbstractPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("getSlotFor", "itemStack", this::getSlotFor),
 		new MemberFunction("getAllSlotsFor", "itemStack", this::getAllSlotsFor),
 		new MemberFunction("getAbilities", this::getAbilities),
-		new MemberFunction("getLevels", this::getLevels)
+		new MemberFunction("getLevels", this::getLevels),
+		new MemberFunction("getFoodLevel", this::getFoodLevel)
 	);
 
 	private Value<?> getGamemode(Context context, MemberFunction function) throws CodeError {
@@ -122,11 +123,15 @@ public class ArucasAbstractPlayerMembers implements IArucasValueExtension {
 		return new MapValue(map);
 	}
 
+
 	private Value<?> getLevels(Context context, MemberFunction function) throws CodeError {
 		AbstractClientPlayerEntity playerEntity = this.getOtherPlayer(context, function);
 		return new NumberValue(playerEntity.experienceLevel);
 	}
-
+	private Value<?> getFoodLevel(Context context, MemberFunction function) throws CodeError {
+		AbstractClientPlayerEntity playerEntity = this.getOtherPlayer(context, function);
+		return new NumberValue(playerEntity.getHungerManager().getFoodLevel());
+	}
 	private AbstractClientPlayerEntity getOtherPlayer(Context context, MemberFunction function) throws CodeError {
 		AbstractPlayerValue<?> player = function.getParameterValueOfType(context, AbstractPlayerValue.class, 0);
 		if (player == null) {
