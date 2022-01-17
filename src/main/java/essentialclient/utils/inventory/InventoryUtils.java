@@ -86,19 +86,25 @@ public class InventoryUtils {
 		}
 	}
 
-	public static boolean tradeAllItems(MinecraftClient client, int index, boolean dropItems) {
+	public static boolean tradeAllItems(MinecraftClient client, int index, boolean dropItems){
 		if (!(client.currentScreen instanceof MerchantScreen merchantScreen) || client.interactionManager == null) {
 			return false;
 		}
+		selectTrade(client, merchantScreen, index);
+		long cTime = System.currentTimeMillis();
 		Slot tradeSlot = merchantScreen.getScreenHandler().getSlot(2);
 		while (true) {
 			if (checkTradeDisabled(client, index)!= 0){
 				break;
 			}
-			//client.interactionManager.clickSlot(merchantScreen.getScreenHandler().syncId, 0, 99, SlotActionType.SWAP, client.player);
-			selectTrade(client, merchantScreen, index);
 			if (!tradeSlot.hasStack()) {
-				continue;
+				if (System.currentTimeMillis() - cTime < 2000L) {
+					continue;
+				} else {
+					selectTrade(client, merchantScreen, index);
+					cTime = System.currentTimeMillis();
+					continue;
+				}
 			}
 			ItemStack tradeStack = tradeSlot.getStack().copy();
 			//shiftClickSlot(client, merchantScreen, tradeSlot.id);
