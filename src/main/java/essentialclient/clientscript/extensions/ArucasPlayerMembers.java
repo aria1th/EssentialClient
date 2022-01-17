@@ -104,6 +104,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("getBlockBreakingSpeed", "blockState", this::getBlockBreakingSpeed),
 		// Villager Stuff
 		new MemberFunction("tradeIndex", "index", this::tradeIndex),
+		new MemberFunction("tradeIndexAndDrop", "index", this::tradeIndexAndDrop),
 		new MemberFunction("getIndexOfTradeItem", "itemStack", this::getIndexOfTrade),
 		new MemberFunction("getTradeItemForIndex", "index", this::getTradeItemForIndex),
 		new MemberFunction("doesVillagerHaveTrade", "itemStack", this::doesVillagerHaveTrade),
@@ -268,6 +269,7 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		ArucasMinecraftExtension.getClient().execute(() -> {
 			if (player.isOnGround()) {
 				player.jump();
+				player.setOnGround(false);
 			}
 		});
 		return NullValue.NULL;
@@ -557,7 +559,14 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		}
 		return NullValue.NULL;
 	}
-
+	private Value<?> tradeIndexAndDrop(Context context, MemberFunction function) throws CodeError {
+		this.checkMainPlayer(context, function);
+		NumberValue numberValue = function.getParameterValueOfType(context, NumberValue.class, 1);
+		if (!InventoryUtils.tradeAllItems(ArucasMinecraftExtension.getClient(), numberValue.value.intValue(), true)) {
+			throw new RuntimeError("Not in merchant gui", function.syntaxPosition, context);
+		}
+		return NullValue.NULL;
+	}
 	private Value<?> getIndexOfTrade(Context context, MemberFunction function) throws CodeError {
 		this.checkMainPlayer(context, function);
 		ItemStackValue itemStackValue = function.getParameterValueOfType(context, ItemStackValue.class, 1);
