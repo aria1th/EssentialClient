@@ -92,18 +92,21 @@ public class InventoryUtils {
 		}
 		Slot tradeSlot = merchantScreen.getScreenHandler().getSlot(2);
 		while (true) {
-			selectTrade(client, merchantScreen, index);
-			if (!tradeSlot.hasStack()) {
+			if (checkTradeDisabled(client, index)!= 0){
 				break;
 			}
+			//client.interactionManager.clickSlot(merchantScreen.getScreenHandler().syncId, 0, 99, SlotActionType.SWAP, client.player);
+			selectTrade(client, merchantScreen, index);
+			if (!tradeSlot.hasStack()) {
+				continue;
+			}
 			ItemStack tradeStack = tradeSlot.getStack().copy();
-			shiftClickSlot(client, merchantScreen, tradeSlot.id);
+			//shiftClickSlot(client, merchantScreen, tradeSlot.id);
+			client.interactionManager.clickSlot(merchantScreen.getScreenHandler().syncId, 2, 0, SlotActionType.QUICK_MOVE, client.player);
 			if (dropItems) {
 				dropAllItemType(client.player, tradeStack.getItem());
 			}
-			if (tradeSlot.hasStack()) {
-				break;
-			}
+			break;
 		}
 		clearTradeInputSlot(client, merchantScreen);
 		return true;
@@ -346,6 +349,7 @@ public class InventoryUtils {
 
 	public static void shiftClickSlot(MinecraftClient client, HandledScreen<? extends ScreenHandler> screen, int index) {
 		if (client.interactionManager == null) {
+			System.out.println("failed to shift click slot");
 			return;
 		}
 		client.interactionManager.clickSlot(screen.getScreenHandler().syncId, index, 0, SlotActionType.QUICK_MOVE, client.player);
