@@ -104,7 +104,12 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 		new MemberFunction("getBlockBreakingSpeed", "blockState", this::getBlockBreakingSpeed),
 		// Villager Stuff
 		new MemberFunction("tradeIndex", "index", this::tradeIndex),
+		new MemberFunction("selectTrade", "index", this::selectTrade),
+		new MemberFunction("clearTrade", this::clearTrade),
+		new MemberFunction("isTradeSelected", this::isTradeSelected),
+		new MemberFunction("tradeSelectedRecipeAndThrow", this::tradeSelectedRecipeAndThrow),
 		new MemberFunction("tradeIndexAndDrop", "index", this::tradeIndexAndDrop),
+		new MemberFunction("tradeIndexAndDropInstant", "index", this::tradeIndexAndDropWithoutInventory),
 		new MemberFunction("getIndexOfTradeItem", "itemStack", this::getIndexOfTrade),
 		new MemberFunction("getTradeItemForIndex", "index", this::getTradeItemForIndex),
 		new MemberFunction("doesVillagerHaveTrade", "itemStack", this::doesVillagerHaveTrade),
@@ -566,6 +571,40 @@ public class ArucasPlayerMembers implements IArucasValueExtension {
 			throw new RuntimeError("Not in merchant gui", function.syntaxPosition, context);
 		}
 		return NullValue.NULL;
+	}
+	private Value<?> tradeIndexAndDropWithoutInventory(Context context, MemberFunction function) throws CodeError {
+		this.checkMainPlayer(context, function);
+		NumberValue numberValue = function.getParameterValueOfType(context, NumberValue.class, 1);
+		if (!InventoryUtils.tradeAllItemsWithoutShift(ArucasMinecraftExtension.getClient(), numberValue.value.intValue())) {
+			throw new RuntimeError("Not in merchant gui", function.syntaxPosition, context);
+		}
+		return NullValue.NULL;
+	}
+	private Value<?> selectTrade(Context context, MemberFunction function) throws CodeError {
+		this.checkMainPlayer(context, function);
+		NumberValue numberValue = function.getParameterValueOfType(context, NumberValue.class, 1);
+		if (!InventoryUtils.selectTrade(ArucasMinecraftExtension.getClient(), numberValue.value.intValue())) {
+			throw new RuntimeError("Not in merchant gui", function.syntaxPosition, context);
+		}
+		return NullValue.NULL;
+	}
+	private Value<?> clearTrade(Context context, MemberFunction function) throws CodeError {
+		this.checkMainPlayer(context, function);
+		if (!InventoryUtils.clearTrade(ArucasMinecraftExtension.getClient())) {
+			throw new RuntimeError("Not in merchant gui", function.syntaxPosition, context);
+		}
+		return NullValue.NULL;
+	}
+	private Value<?> tradeSelectedRecipeAndThrow(Context context, MemberFunction function) throws CodeError {
+		this.checkMainPlayer(context, function);
+		if (!InventoryUtils.tradeSelectedRecipeAndThrow(ArucasMinecraftExtension.getClient())) {
+			throw new RuntimeError("Not in merchant gui", function.syntaxPosition, context);
+		}
+		return NullValue.NULL;
+	}
+	private Value<?> isTradeSelected(Context context, MemberFunction function) throws CodeError {
+		this.checkMainPlayer(context, function);
+		return BooleanValue.of(InventoryUtils.isTradeSelected(ArucasMinecraftExtension.getClient()));
 	}
 	private Value<?> getIndexOfTrade(Context context, MemberFunction function) throws CodeError {
 		this.checkMainPlayer(context, function);
