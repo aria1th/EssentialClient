@@ -26,6 +26,7 @@ import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Pair;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
@@ -98,7 +99,7 @@ public class InventoryUtils {
 				break;
 			}
 			if (!tradeSlot.hasStack()) {
-				if (System.currentTimeMillis() - cTime < 2000L) {
+				if (System.currentTimeMillis() - cTime < 200L) {
 					continue;
 				} else {
 					selectTrade(client, merchantScreen, index);
@@ -117,7 +118,59 @@ public class InventoryUtils {
 		clearTradeInputSlot(client, merchantScreen);
 		return true;
 	}
-
+	public static boolean tradeAllItemsWithoutShift(MinecraftClient client, int index){
+		if (!(client.currentScreen instanceof MerchantScreen merchantScreen) || client.interactionManager == null) {
+			return false;
+		}
+		selectTrade(client, merchantScreen, index);
+		long cTime = System.currentTimeMillis();
+		Slot tradeSlot = merchantScreen.getScreenHandler().getSlot(2);
+		while (true) {
+			if (checkTradeDisabled(client, index)!= 0){
+				break;
+			}
+			if (!tradeSlot.hasStack()) {
+				if (System.currentTimeMillis() - cTime < 200L) {
+					continue;
+				} else {
+					selectTrade(client, merchantScreen, index);
+					cTime = System.currentTimeMillis();
+					continue;
+				}
+			}
+			client.interactionManager.clickSlot(merchantScreen.getScreenHandler().syncId, 2, 0, SlotActionType.PICKUP, client.player);
+			client.interactionManager.clickSlot(merchantScreen.getScreenHandler().syncId, -999, 0, SlotActionType.PICKUP, client.player);
+			break;
+		}
+		clearTradeInputSlot(client, merchantScreen);
+		return true;
+	}
+	public static boolean tradeSelectedRecipeAndThrow(MinecraftClient client){
+		if (!(client.currentScreen instanceof MerchantScreen merchantScreen) || client.interactionManager == null) {
+			return false;
+		}
+		Slot tradeSlot = merchantScreen.getScreenHandler().getSlot(2);
+		if(tradeSlot.getStack().getCount() == 0){
+			return true;
+		}
+		client.interactionManager.clickSlot(merchantScreen.getScreenHandler().syncId, 2, 0, SlotActionType.PICKUP, client.player);
+		client.interactionManager.clickSlot(merchantScreen.getScreenHandler().syncId, -999, 0, SlotActionType.PICKUP, client.player);
+		return true;
+	}
+	public static boolean clearTrade(MinecraftClient client){
+		if (!(client.currentScreen instanceof MerchantScreen) || client.interactionManager == null) {
+			return false;
+		}
+		clearTradeInputSlot(client, (MerchantScreen)client.currentScreen);
+		return true;
+	}
+	public static boolean isTradeSelected(MinecraftClient client){
+		if (!(client.currentScreen instanceof MerchantScreen merchantScreen) || client.interactionManager == null) {
+			return false;
+		}
+		Slot tradeSlot = merchantScreen.getScreenHandler().getSlot(0);
+		return tradeSlot.getStack().getCount() != 0;
+	}
 	public static void selectTrade(MinecraftClient client, MerchantScreen merchantScreen, int index) {
 		if (client.getNetworkHandler() == null) {
 			return;
@@ -126,7 +179,15 @@ public class InventoryUtils {
 		handler.setRecipeIndex(index);
 		client.getNetworkHandler().sendPacket(new SelectMerchantTradeC2SPacket(index));
 	}
-
+	public static boolean selectTrade(MinecraftClient client, int index) {
+		if (client.getNetworkHandler() == null || !(client.currentScreen instanceof MerchantScreen)) {
+			return false;
+		}
+		MerchantScreenHandler handler = ((MerchantScreen)client.currentScreen).getScreenHandler();
+		handler.setRecipeIndex(index);
+		client.getNetworkHandler().sendPacket(new SelectMerchantTradeC2SPacket(index));
+		return true;
+	}
 	public static void clearTradeInputSlot(MinecraftClient client, MerchantScreen merchantScreen) {
 		Slot slot = merchantScreen.getScreenHandler().getSlot(0);
 		if (slot.hasStack()) {
