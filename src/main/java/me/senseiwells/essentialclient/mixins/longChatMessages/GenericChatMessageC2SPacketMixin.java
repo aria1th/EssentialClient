@@ -18,10 +18,10 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(ChatMessageC2SPacket.class)
 //#endif
 public class GenericChatMessageC2SPacketMixin {
-	//#if MC >= 11901
-	//$$ @ModifyConstant(method = "write", constant = @Constant(intValue = 256))
+	//#if MC >= 11900
+	@ModifyConstant(method = "write", constant = @Constant(intValue = 256))
 	//#else
-	@ModifyConstant(method = "<init>(Ljava/lang/String;)V", constant = @Constant(intValue = 256))
+	//$$ @ModifyConstant(method = "<init>(Ljava/lang/String;)V", constant = @Constant(intValue = 256))
 	//#endif
 	private static int getMaxLength(int constant) {
 		return EssentialUtils.getMaxChatLength(constant);

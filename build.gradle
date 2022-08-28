@@ -25,7 +25,7 @@ task buildAndGather {
 			subprojects {
 				def libDir = project.projectDir.toPath().resolve("build/libs")
 				from(libDir) {
-					include "*.jar"
+					include "*.jar", "*-all.jar"
 					exclude "*-dev.jar", "*-sources.jar"
 				}
 				into "build/libs/"
