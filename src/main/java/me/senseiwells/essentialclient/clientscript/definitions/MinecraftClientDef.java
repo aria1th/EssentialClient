@@ -344,9 +344,9 @@ public class MinecraftClientDef extends PrimitiveDefinition<MinecraftClient> {
 		MinecraftClient client = arguments.nextPrimitive(this);
 
 		//#if MC >= 11901
-		ChatHudLine[] chat = ((ChatHudAccessor) client.inGameHud.getChatHud()).getMessages().toArray(ChatHudLine[]::new);
+		//$$ ChatHudLine[] chat = ((ChatHudAccessor) client.inGameHud.getChatHud()).getMessages().toArray(ChatHudLine[]::new);
 		//#else
-		//$$ChatHudLine<Text>[] chat = ((ChatHudAccessor) client.inGameHud.getChatHud()).getMessages().toArray(ChatHudLine[]::new);
+		ChatHudLine<Text>[] chat = ((ChatHudAccessor) client.inGameHud.getChatHud()).getMessages().toArray(ChatHudLine[]::new);
 		//#endif
 
 		if (chat.length == 0) {
@@ -354,9 +354,9 @@ public class MinecraftClientDef extends PrimitiveDefinition<MinecraftClient> {
 		}
 
 		//#if MC >= 11901
-		return chat[0].content();
+		//$$ return chat[0].content();
 		//#else
-		//$$return chat[0].getText().copy();
+		return chat[0].getText().copy();
 		//#endif
 	}
 

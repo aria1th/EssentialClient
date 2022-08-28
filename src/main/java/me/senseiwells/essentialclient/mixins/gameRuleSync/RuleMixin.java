@@ -6,10 +6,10 @@ import me.senseiwells.essentialclient.utils.render.Texts;
 //#if MC < 11900
 //$$import net.minecraft.network.MessageType;
 //#elseif MC <= 11900
-//$$import net.minecraft.network.message.MessageType;
+import net.minecraft.network.message.MessageType;
 //#endif
 //#if MC < 11901
-//$$import net.minecraft.util.Util;
+import net.minecraft.util.Util;
 //#endif
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
@@ -39,9 +39,9 @@ public abstract class RuleMixin<T extends GameRules.Rule<T>> implements IGameRul
 	public void ruleChanged(String ruleName, MinecraftServer server) {
 		Text text = Texts.literal("Set Game Rule %s to %s".formatted(ruleName, this.serialize()));
 		//#if MC >= 11901
-		server.getPlayerManager().broadcast(text, false);
+		//$$ server.getPlayerManager().broadcast(text, false);
 		//#elseif MC >= 11900
-		//$$server.getPlayerManager().broadcast(text, MessageType.SYSTEM);
+		server.getPlayerManager().broadcast(text, MessageType.SYSTEM);
 		//#elseif MC >= 11800
 		//$$server.getPlayerManager().broadcast(text, MessageType.SYSTEM, Util.NIL_UUID);
 		//#else
