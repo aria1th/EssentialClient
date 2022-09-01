@@ -11,14 +11,15 @@ import me.senseiwells.arucas.utils.LocatableTrace;
 import me.senseiwells.arucas.utils.MemberFunction;
 import me.senseiwells.arucas.utils.Util;
 import me.senseiwells.essentialclient.clientscript.core.MinecraftAPI;
+import me.senseiwells.essentialclient.utils.EssentialUtils;
 import me.senseiwells.essentialclient.utils.clientscript.impl.ScriptPos;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.BuiltinRegistries;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 
 import java.util.List;
-import java.util.WeakHashMap;
 
 import static me.senseiwells.arucas.utils.Util.Types.*;
 import static me.senseiwells.essentialclient.clientscript.core.MinecraftAPI.BIOME;
@@ -31,8 +32,6 @@ import static me.senseiwells.essentialclient.clientscript.core.MinecraftAPI.POS;
 	language = Util.Language.Java
 )
 public class BiomeDef extends CreatableDefinition<Biome> {
-	public static final WeakHashMap<Biome, String> BIOME_TO_ID_MAP = new WeakHashMap<>();
-
 	public BiomeDef(Interpreter interpreter) {
 		super(MinecraftAPI.BIOME, interpreter);
 	}
@@ -213,18 +212,14 @@ public class BiomeDef extends CreatableDefinition<Biome> {
 
 	@FunctionDoc(
 		name = "getId",
-		desc = "This function returns the Id of the biome",
+		desc = "This function returns the path id of the biome, e.g. 'plains'",
 		returns = {STRING, "id of the biome"},
 		examples = "biome.getId();"
 	)
 	private String getId(Arguments arguments) {
 		Biome biome = arguments.nextPrimitive(this);
-		//#if MC <= 11800
-		//$$Identifier biomeIdentifier = BuiltinRegistries.BIOME.getId(biome);
-		//$$return biomeIdentifier == null ? "minecraft:plains" : biomeIdentifier.getPath();
-		//#else
-		return BIOME_TO_ID_MAP.getOrDefault(biome, "minecraft:plains");
-		//#endif
+		Identifier id = EssentialUtils.getNetworkHandler().getRegistryManager().get(Registry.BIOME_KEY).getId(biome);
+		return id == null ? "plains" : id.getPath();
 	}
 
 	@FunctionDoc(
