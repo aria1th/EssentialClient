@@ -17,7 +17,7 @@ public abstract class ClientPlayerEntityMixin {
 	//#if MC >= 11901
 	//$$@Shadow
 	//$$public abstract boolean sendCommand(String par1);
-	//#else if MC >= 11900
+	//#elseif MC >= 11900
 	@Shadow
 	public abstract void sendCommand(String par1);
 	//#endif
