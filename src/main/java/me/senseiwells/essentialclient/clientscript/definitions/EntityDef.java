@@ -17,11 +17,13 @@ import me.senseiwells.essentialclient.utils.EssentialUtils;
 import me.senseiwells.essentialclient.utils.clientscript.ClientScriptUtils;
 import me.senseiwells.essentialclient.utils.clientscript.impl.ScriptBlockState;
 import me.senseiwells.essentialclient.utils.clientscript.impl.ScriptPos;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
@@ -130,7 +132,7 @@ public class EntityDef extends PrimitiveDefinition<Entity> {
 			MemberFunction.of("getNbt", this::getNbt),
 			MemberFunction.of("getTranslatedName", this::getTranslatedName),
 			MemberFunction.of("getHitbox", this::getHitbox),
-			MemberFunction.of("collidesWith", 2, this::collidesWithBlockAtPos),
+			MemberFunction.arb("collidesWith", this::collidesWithBlockAtPos),
 			MemberFunction.of("canSpawnAt", 1, this::canSpawnPos)
 		);
 	}
@@ -604,8 +606,15 @@ public class EntityDef extends PrimitiveDefinition<Entity> {
 	private boolean collidesWithBlockAtPos(Arguments arguments) {
 		Entity entity = arguments.nextPrimitive(this);
 		ScriptPos pos = arguments.nextPrimitive(PosDef.class);
-		ScriptBlockState block = arguments.nextPrimitive(BlockDef.class);
-		return entity.collidesWithStateAtPos(pos.getBlockPos(), block.state);
+		BlockState block = arguments.hasNext() ? arguments.nextPrimitive(BlockDef.class).state : entity.world.getBlockState(pos.getBlockPos());
+		Vec3d vec3d = arguments.hasNext() ? arguments.nextPrimitive(PosDef.class).getVec3d() : entity.getPos();
+		Entity fakeEntity = entity.getType().create(entity.world);
+		if (fakeEntity == null) {
+			throw new RuntimeError("Entity cannot be copied from " + entity.getType());
+		}
+		fakeEntity.copyFrom(entity);
+		fakeEntity.setPosition(vec3d);
+		return fakeEntity.collidesWithStateAtPos(pos.getBlockPos(), block);
 	}
 
 	@FunctionDoc(
