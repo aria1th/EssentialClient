@@ -6614,7 +6614,6 @@ screen.tradeIndex(0);
 
 ### `<MerchantScreen>.tradeSelected()`
 - Description: This trades the currently selected trade.
-This function accepts optional boolean to simulate click action even if screen is not synced or filled.
 You must be inside the merchant GUI or an error will be thrown
 - Example:
 ```kotlin
@@ -6623,7 +6622,6 @@ screen.tradeSelected();
 
 ### `<MerchantScreen>.tradeSelectedAndThrow()`
 - Description: This trades the currently selected trade and throws the items that were traded.
-This function accepts optional boolean to simulate click action even if screen is not synced or filled.
 You must be inside the merchant GUI or an error will be thrown
 - Example:
 ```kotlin
@@ -6667,12 +6665,12 @@ client.canSendScriptPacket()
 client.clearChat();
 ```
 
-### `<MinecraftClient>.editSign(position, string)`
-- Description: This allows you to edit sign at certain position with given string(lines), max at 4.
-This function does not check if sign is in position / sign is editable.
+### `<MinecraftClient>.editSign(position, string...)`
+- Description: This allows you to edit sign at certain position with given string(lines), up to 4 lines.
+This function does not check if sign is editable / is in position.
 - Parameters:
   - Pos (`position`): the position of sign
-  - String (`string`): the string you want to put
+  - String (`string...`): the lines for the sign, requires 1 string and up to 4 strings
 - Example:
 ```kotlin
 client.editSign(new Pos(0,0,0), '100', '101', 'this is third line', 'last line');
@@ -8006,14 +8004,6 @@ player.openScreen(new FakeScreen('MyScreen', 4));
 - Example:
 ```kotlin
 player.say('/help');
-```
-
-### `<Player>.selectTrade(index)`
-- Description: This allows you to player send trade select packet, maybe while screen is being opened.
-- Parameter - Number (`index`): the trade index to send
-- Example:
-```kotlin
-player.selectTrade(0);
 ```
 
 ### `<Player>.setSelectedSlot(slot)`
@@ -9727,15 +9717,6 @@ world.getBiomeAt(new Pos(0, 100, 0));
 - Example:
 ```kotlin
 world.getBiomeAt(0, 100, 0);
-```
-
-### `<World>.getBlockAccurate(pos)`
-- Description: This function gets the block accurately at the given coordinates
-- Parameter - Pos (`pos`): the position
-- Returns - Block: the block at the given coordinates
-- Example:
-```kotlin
-world.getBlockAccurate(new Pos(0, 100, 0));
 ```
 
 ### `<World>.getBlockAt(pos)`

@@ -1633,14 +1633,12 @@ class MerchantScreen: Screen {
 
     /*
      * This trades the currently selected trade.
-     * This function accepts optional boolean to simulate click action even if screen is not synced or filled.
      * You must be inside the merchant GUI or an error will be thrown
      */
     fun tradeSelected(): Null;
 
     /*
      * This trades the currently selected trade and throws the items that were traded.
-     * This function accepts optional boolean to simulate click action even if screen is not synced or filled.
      * You must be inside the merchant GUI or an error will be thrown
      */
     fun tradeSelectedAndThrow(): Null;
@@ -1669,12 +1667,12 @@ class MinecraftClient {
     fun clearChat(): Null;
 
     /*
-     * This allows you to edit sign at certain position with given string(lines), max at 4.
-     * This function does not check if sign is in position / sign is editable.
+     * This allows you to edit sign at certain position with given string(lines), up to 4 lines.
+     * This function does not check if sign is editable / is in position.
      * Parameter - Pos (position): the position of sign
-     * Parameter - String (string): the string you want to put
+     * Parameter - String (string...): the lines for the sign, requires 1 string and up to 4 strings
      */
-    fun editSign(position: Pos, string: String): Null;
+    fun editSign(position: Pos, string...: String): Null;
 
     /*
      * This returns the current render distance set on the client
@@ -2502,12 +2500,6 @@ class Player: OtherPlayer {
     fun say(message: String): Null;
 
     /*
-     * This allows you to player send trade select packet, maybe while screen is being opened.
-     * Parameter - Number (index): the trade index to send
-     */
-    fun selectTrade(index: Number): Null;
-
-    /*
      * This allows you to set the slot number your player is holding.
      * If the number is not between 0 and 8 an error will be thrown
      * Parameter - Number (slot): the slot number, must be between 0 - 8
@@ -3332,13 +3324,6 @@ class World {
      * Returns - Biome: the biome at the given coordinates
      */
     fun getBiomeAt(x: Number, y: Number, z: Number): Biome;
-
-    /*
-     * This function gets the block accurately at the given coordinates
-     * Parameter - Pos (pos): the position
-     * Returns - Block: the block at the given coordinates
-     */
-    fun getBlockAccurate(pos: Pos): Block;
 
     /*
      * This function gets the block at the given coordinates

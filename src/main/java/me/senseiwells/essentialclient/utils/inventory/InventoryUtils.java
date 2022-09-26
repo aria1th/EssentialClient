@@ -637,30 +637,12 @@ public class InventoryUtils {
 		EssentialUtils.getNetworkHandler().sendPacket(new SelectMerchantTradeC2SPacket(index));
 	}
 
-	public static void selectTradeUnsafe(int index) {
-		EssentialUtils.getNetworkHandler().sendPacket(new SelectMerchantTradeC2SPacket(index));
-	}
-
 	public static void tradeSelectedRecipe(boolean drop) {
 		MerchantScreenHandler screenHandler = checkScreen();
 		Slot tradeSlot = screenHandler.getSlot(2);
 		if (tradeSlot.getStack().getCount() == 0) {
 			return;
 		}
-		if (drop) {
-			getInteractionManager().clickSlot(screenHandler.syncId, 2, 1, SlotActionType.THROW, getPlayer());
-			return;
-		}
-		shiftClickSlot(screenHandler, 2);
-	}
-
-	public static void tradeSelectedRecipe(boolean drop, boolean force) {
-		if (!force) {
-			tradeSelectedRecipe(drop);
-			return;
-		}
-		MerchantScreenHandler screenHandler = checkScreen();
-		Slot tradeSlot = screenHandler.getSlot(2);
 		if (drop) {
 			getInteractionManager().clickSlot(screenHandler.syncId, 2, 1, SlotActionType.THROW, getPlayer());
 			return;

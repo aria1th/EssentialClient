@@ -21,7 +21,6 @@ import me.senseiwells.essentialclient.utils.clientscript.ThreadSafeUtils;
 import me.senseiwells.essentialclient.utils.clientscript.impl.ScriptBlockState;
 import me.senseiwells.essentialclient.utils.clientscript.impl.ScriptPos;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.world.ClientWorld;
@@ -29,22 +28,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.particle.ParticleType;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockStateRaycastContext;
 import net.minecraft.world.LightType;
-import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
 import java.util.List;
-import java.util.Locale;
 
 import static me.senseiwells.arucas.utils.Util.Types.*;
 import static me.senseiwells.essentialclient.clientscript.core.MinecraftAPI.*;
@@ -72,7 +63,6 @@ public class WorldDef extends CreatableDefinition<World> {
 		return List.of(
 			MemberFunction.of("getBlockAt", 3, this::getBlockAt),
 			MemberFunction.of("getBlockAt", 1, this::getBlockAtPos),
-			MemberFunction.of("getBlockAccurate", 1, this::getBlockAtPosAccurate),
 			MemberFunction.of("isLoaded", 1, this::isLoaded),
 			MemberFunction.of("getBiomeAt", 3, this::getBiomeAt),
 			MemberFunction.of("getBiomeAt", 1, this::getBiomeAtPos),
@@ -145,21 +135,6 @@ public class WorldDef extends CreatableDefinition<World> {
 		ScriptPos pos = arguments.nextPrimitive(PosDef.class);
 		BlockPos blockPos = pos.getBlockPos();
 		return new ScriptBlockState(world.getBlockState(blockPos), blockPos);
-	}
-
-	@FunctionDoc(
-		name = "getBlockAccurate",
-		desc = "This function gets the block accurately at the given coordinates",
-		params = {POS, "pos", "the position"},
-		returns = {BLOCK, "the block at the given coordinates"},
-		examples = "world.getBlockAccurate(new Pos(0, 100, 0));"
-	)
-	private ScriptBlockState getBlockAtPosAccurate(Arguments arguments) {
-		warnMainThread("getBlockAccurate", arguments.getInterpreter());
-		World world = arguments.nextPrimitive(this);
-		ScriptPos pos = arguments.nextPrimitive(PosDef.class);
-		boolean matches = VoxelShapes.matchesAnywhere(world.getBlockState(pos.getBlockPos()).getCollisionShape(world, pos.getBlockPos()), VoxelShapes.cuboid(Box.of(pos.getVec3d(), 0.01f, 0.01f, 0.01f)), BooleanBiFunction.AND);
-		return matches ? new ScriptBlockState(world.getBlockState(pos.getBlockPos()), pos.getBlockPos()) : new ScriptBlockState(Blocks.AIR.getDefaultState(), pos.getBlockPos());
 	}
 
 	@FunctionDoc(

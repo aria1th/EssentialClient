@@ -7605,7 +7605,6 @@
           "is_arbitrary": false,
           "desc": [
             "This trades the currently selected trade.",
-            "This function accepts optional boolean to simulate click action even if screen is not synced or filled.",
             "You must be inside the merchant GUI or an error will be thrown"
           ],
           "examples": [
@@ -7617,7 +7616,6 @@
           "is_arbitrary": false,
           "desc": [
             "This trades the currently selected trade and throws the items that were traded.",
-            "This function accepts optional boolean to simulate click action even if screen is not synced or filled.",
             "You must be inside the merchant GUI or an error will be thrown"
           ],
           "examples": [
@@ -7682,8 +7680,8 @@
           "name": "editSign",
           "is_arbitrary": false,
           "desc": [
-            "This allows you to edit sign at certain position with given string(lines), max at 4.",
-            "This function does not check if sign is in position / sign is editable."
+            "This allows you to edit sign at certain position with given string(lines), up to 4 lines.",
+            "This function does not check if sign is editable / is in position."
           ],
           "params": [
             {
@@ -7692,9 +7690,9 @@
               "desc": "the position of sign"
             },
             {
-              "name": "string",
+              "name": "string...",
               "type": "String",
-              "desc": "the string you want to put"
+              "desc": "the lines for the sign, requires 1 string and up to 4 strings"
             }
           ],
           "examples": [
@@ -10182,23 +10180,6 @@
           ],
           "examples": [
             "player.say('/help');"
-          ]
-        },
-        {
-          "name": "selectTrade",
-          "is_arbitrary": false,
-          "desc": [
-            "This allows you to player send trade select packet, maybe while screen is being opened."
-          ],
-          "params": [
-            {
-              "name": "index",
-              "type": "Number",
-              "desc": "the trade index to send"
-            }
-          ],
-          "examples": [
-            "player.selectTrade(0);"
           ]
         },
         {
@@ -13459,27 +13440,6 @@
           },
           "examples": [
             "world.getBiomeAt(0, 100, 0);"
-          ]
-        },
-        {
-          "name": "getBlockAccurate",
-          "is_arbitrary": false,
-          "desc": [
-            "This function gets the block accurately at the given coordinates"
-          ],
-          "params": [
-            {
-              "name": "pos",
-              "type": "Pos",
-              "desc": "the position"
-            }
-          ],
-          "returns": {
-            "type": "Block",
-            "desc": "the block at the given coordinates"
-          },
-          "examples": [
-            "world.getBlockAccurate(new Pos(0, 100, 0));"
           ]
         },
         {
