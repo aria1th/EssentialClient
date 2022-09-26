@@ -242,7 +242,7 @@ public class MerchantScreenDef extends CreatableDefinition<MerchantScreen> {
 	)
 	private Void tradeSelected(Arguments arguments) {
 		boolean force = arguments.skip().hasNext() ? arguments.nextPrimitive(BooleanDef.class) : false;
-		ensureMainThread("tradeSelected", arguments.getInterpreter(), () -> InventoryUtils.tradeSelectedRecipe(false, force));
+		ensureMainThread("tradeSelected", arguments.getInterpreter(), () -> InventoryUtils.tradeSelectedRecipe(false));
 		return null;
 	}
 
@@ -257,7 +257,7 @@ public class MerchantScreenDef extends CreatableDefinition<MerchantScreen> {
 	)
 	private Void tradeSelectedAndThrow(Arguments arguments) {
 		boolean force = arguments.skip().hasNext() ? arguments.nextPrimitive(BooleanDef.class) : false;
-		ensureMainThread("tradeSelectedAndThrow", arguments.getInterpreter(), () -> InventoryUtils.tradeSelectedRecipe(true, force));
+		ensureMainThread("tradeSelectedAndThrow", arguments.getInterpreter(), () -> InventoryUtils.tradeSelectedRecipe(true));
 		return null;
 	}
 

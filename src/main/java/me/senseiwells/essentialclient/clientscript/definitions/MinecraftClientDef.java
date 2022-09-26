@@ -348,7 +348,9 @@ public class MinecraftClientDef extends PrimitiveDefinition<MinecraftClient> {
 		}
 
 		//#if MC >= 11901
-		return chat[0].content();
+		//$$return chat[0].content();
+		//#elseif MC >= 11900
+		return ((Text) chat[0].getText()).copy();
 		//#else
 		//$$return chat[0].getText().copy();
 		//#endif
