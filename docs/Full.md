@@ -6614,6 +6614,7 @@ screen.tradeIndex(0);
 
 ### `<MerchantScreen>.tradeSelected()`
 - Description: This trades the currently selected trade.
+This function accepts optional boolean to simulate click action even if screen is not synced or filled.
 You must be inside the merchant GUI or an error will be thrown
 - Example:
 ```kotlin
@@ -6622,6 +6623,7 @@ screen.tradeSelected();
 
 ### `<MerchantScreen>.tradeSelectedAndThrow()`
 - Description: This trades the currently selected trade and throws the items that were traded.
+This function accepts optional boolean to simulate click action even if screen is not synced or filled.
 You must be inside the merchant GUI or an error will be thrown
 - Example:
 ```kotlin
