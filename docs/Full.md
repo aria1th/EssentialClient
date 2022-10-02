@@ -3396,6 +3396,14 @@ config.addListener(function(newValue) {
 });
 ```
 
+### `<Config>.getCategory()`
+- Description: Gets the category of the config
+- Returns - String: The category of the config
+- Example:
+```kotlin
+config.getCategory();
+```
+
 ### `<Config>.getDefaultValue()`
 - Description: Gets the default value of the config
 - Returns - Object: The default value of the config
@@ -3501,6 +3509,7 @@ And can optionally contain the following keys:
 'description' which is a description of the config,
 'optional_info' which is an optional info for the config,
 'default_value' which is the default value of the config,
+'category' which is the category of the config,
 'value' which is the current value of the config, 
 'listener' which is a function that will be called when the config changes, this must have 1 parameter which is the rule that was changed,
 'max_length' which is the max length for the input of the config, this must be an integer > 0, default is 32
@@ -3517,6 +3526,7 @@ configMap = {
     "type": "string",
     "name": "My Config",
     "description": "This is my config",
+    "category": "Useful",
     "optional_info": "This is an optional info",
     "default_value": "foo",
     "value": "bar",
@@ -9645,16 +9655,6 @@ String.type.getName();
 String.type.inheritsFrom(Number.type);
 ```
 
-### `<Type>.instanceOf(type)`
-- Deprecated: Use '<Type>.inheritsFrom(type)'
-- Description: This checks whether a type is a subtype of another type
-- Parameter - Type (`type`): the other type you want to check against
-- Returns - Boolean: whether the type is of that type
-- Example:
-```kotlin
-String.type.instanceOf(Number.type);
-```
-
 ## Static Methods
 
 ### `Type.of(value)`
@@ -9975,7 +9975,6 @@ world.isAir(0, 100, 0);
 ```
 
 ### `<World>.isLoaded(pos)`
-- Deprecated: This does nothing, it will always return true
 - Description: This function returns loaded state of given coordinates(client side)
 - Parameter - Pos (`pos`): the position
 - Returns - Boolean: whether the block is loaded at the given coordinates

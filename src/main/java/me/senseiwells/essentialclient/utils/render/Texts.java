@@ -4,6 +4,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 //#if MC < 11900
 //$$import net.minecraft.text.LiteralText;
@@ -19,6 +20,7 @@ public class Texts {
 	public static final Text GAME_RULE_SCREEN = translatable("essentialclient.gameOptions");
 	public static final Text SCRIPT_SCREEN = translatable("essentialclient.scriptOptions");
 	public static final Text CHUNK_SCREEN = translatable("essentialclient.chunkDebugMap");
+	public static final Text CHUNK_CLUSTER_SCREEN = translatable("essentialclient.chunkClusters");
 	public static final Text CONTROLS_SCREEN = translatable("essentialclient.controls");
 	public static final Text TOP_SECRET = translatable("essentialclient.topSecret");
 	public static final TextGenerator VERSION = o -> translatable("essentialclient.version", o);
@@ -72,10 +74,10 @@ public class Texts {
 	public static final Text MINIMAP_STATIC = translatable("essentialclient.chunkDebug.minimapStatic");
 	public static final Text MINIMAP_FOLLOW = translatable("essentialclient.chunkDebug.minimapFollow");
 	public static final Text RETURN_TO_PLAYER = translatable("essentialclient.chunkDebug.returnToPlayer");
-	public static final TextGenerator SELECTED_CHUNK = o -> translatable("essentialclient.chunkDebug.selectedChunk");
-	public static final TextGenerator CHUNK_STATUS = o -> translatable("essentialclient.chunkDebug.status");
-	public static final TextGenerator CHUNK_TICKET = o -> translatable("essentialclient.chunkDebug.ticket");
-	public static final TextGenerator CHUNK_STAGE = o -> translatable("essentialclient.chunkDebug.stage");
+	public static final TextGenerator SELECTED_CHUNK = o -> translatable("essentialclient.chunkDebug.selectedChunk", o);
+	public static final TextGenerator CHUNK_STATUS = o -> translatable("essentialclient.chunkDebug.status", o);
+	public static final TextGenerator CHUNK_TICKET = o -> translatable("essentialclient.chunkDebug.ticket", o);
+	public static final TextGenerator CHUNK_STAGE = o -> translatable("essentialclient.chunkDebug.stage", o);
 	public static final Text UNLOADED = translatable("essentialclient.chunkDebug.type.unloaded");
 	public static final Text BORDER = translatable("essentialclient.chunkDebug.type.border");
 	public static final Text LAZY = translatable("essentialclient.chunkDebug.type.lazy");
@@ -149,6 +151,9 @@ public class Texts {
 
 	public static final TextGenerator CURRENT_REGION = o -> translatable("essentialclient.region.currentRegion", o);
 	public static final TextGenerator DISTANT_REGION = o -> translatable("essentialclient.region.distantRegion", o);
+
+	public static final Identifier JETBRAINS_MONO = new Identifier("essentialclient", "jetbrainsmono");
+	public static final Identifier MINECRAFT_MONO = new Identifier("essentialclient", "monocraft");
 
 	// These allow for easy porting to later versions
 	public static MutableText literal(String message) {
