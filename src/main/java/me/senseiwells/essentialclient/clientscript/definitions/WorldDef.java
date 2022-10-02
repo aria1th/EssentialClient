@@ -149,7 +149,7 @@ public class WorldDef extends CreatableDefinition<World> {
 		World world = arguments.nextPrimitive(this);
 		ScriptPos pos = arguments.nextPrimitive(PosDef.class);
 		BlockPos blockPos = pos.getBlockPos();
-		return world.isChunkLoaded(blockPos);
+		return world.getChunkManager().isChunkLoaded(blockPos.getX() >> 4, blockPos.getZ() >> 4);
 	}
 
 	@FunctionDoc(
