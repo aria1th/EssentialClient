@@ -2048,6 +2048,14 @@ if called on a non-cancellable event, or not on an event, this will throw an err
 GameEvent.cancel();
 ```
 
+### `GameEvent.future()`
+- Description: This returns a future that allows you to wait for an event to occur
+- Returns - Future: the future, will complete once the event has occurred
+- Example:
+```kotlin
+GameEvent.future('onClientTick').await();
+```
+
 ### `GameEvent.unregisterAll()`
 - Description: This unregisters all events registered by this script
 - Example:
@@ -2266,6 +2274,15 @@ itemStack.setItemLore([
 - Example:
 ```kotlin
 itemStack.setNbt({'Lore': []});
+```
+
+### `<ItemStack>.setNbtFromString(nbtString)`
+- Description: This sets the NBT data of the ItemStack from an NBT string
+- Parameter - String (`nbtString`): the NBT data of the ItemStack as a string
+- Returns - ItemStack: the ItemStack with the new NBT data
+- Example:
+```kotlin
+itemStack.setNbtFromString("{\"Lore\": []}");
 ```
 
 ### `<ItemStack>.setStackSize(stackSize)`
@@ -5659,6 +5676,14 @@ pos.multiply(new Pos(2, 3, 5));
 pos.multiply(2, 3, 5);
 ```
 
+### `<Pos>.normalize()`
+- Description: Normalizes the vector to have a magnitude of 1
+- Returns - Pos: the normalized position
+- Example:
+```kotlin
+pos.normalize();
+```
+
 ### `<Pos>.north()`
 - Description: This returns a new Pos with the current pos z incremented by 1
 - Returns - Pos: the new Pos
@@ -7249,6 +7274,7 @@ world.isAir(0, 100, 0);
 ```
 
 ### `<World>.isLoaded(pos)`
+- Deprecated: This does nothing, it will always return true
 - Description: This function returns loaded state of given coordinates(client side)
 - Parameter - Pos (`pos`): the position
 - Returns - Boolean: whether the block is loaded at the given coordinates

@@ -1205,6 +1205,12 @@ class GameEvent {
     static fun cancel(): Null;
 
     /*
+     * This returns a future that allows you to wait for an event to occur
+     * Returns - Future: the future, will complete once the event has occurred
+     */
+    static fun future(): Future;
+
+    /*
      * This unregisters all events registered by this script
      */
     static fun unregisterAll(): Null;
@@ -1362,6 +1368,13 @@ class ItemStack: Material {
      * Returns - ItemStack: the ItemStack with the new NBT data
      */
     fun setNbt(nbtMap: Map): ItemStack;
+
+    /*
+     * This sets the NBT data of the ItemStack from an NBT string
+     * Parameter - String (nbtString): the NBT data of the ItemStack as a string
+     * Returns - ItemStack: the ItemStack with the new NBT data
+     */
+    fun setNbtFromString(nbtString: String): ItemStack;
 
     /*
      * This sets the stack size of the ItemStack
@@ -2763,6 +2776,12 @@ class Pos {
     fun multiply(x: Number, y: Number, z: Number): Pos;
 
     /*
+     * Normalizes the vector to have a magnitude of 1
+     * Returns - Pos: the normalized position
+     */
+    fun normalize(): Pos;
+
+    /*
      * This returns a new Pos with the current pos z incremented by 1
      * Returns - Pos: the new Pos
      */
@@ -3502,6 +3521,7 @@ class World {
     fun isAir(x: Number, y: Number, z: Number): Boolean;
 
     /*
+     * Deprecated: This does nothing, it will always return true
      * This function returns loaded state of given coordinates(client side)
      * Parameter - Pos (pos): the position
      * Returns - Boolean: whether the block is loaded at the given coordinates
