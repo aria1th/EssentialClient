@@ -1,6 +1,6 @@
 plugins {
 	id "com.replaymod.preprocess" version "897c4096e2"
-	id 'fabric-loom' version '0.11-SNAPSHOT' apply false
+	id 'fabric-loom' version '1.0-SNAPSHOT' apply false
 	id 'io.github.juuxel.loom-quiltflower' version '1.7.0' apply false
 }
 
@@ -25,8 +25,8 @@ task buildAndGather {
 			subprojects {
 				def libDir = project.projectDir.toPath().resolve("build/libs")
 				from(libDir) {
-					include "*.jar", "*-all.jar"
-					exclude "*-dev.jar", "*-sources.jar"
+					include "*.jar"
+					exclude "*-dev.jar", "*-sources.jar", "*-all.jar"
 				}
 				into "build/libs/"
 				duplicatesStrategy DuplicatesStrategy.INCLUDE
