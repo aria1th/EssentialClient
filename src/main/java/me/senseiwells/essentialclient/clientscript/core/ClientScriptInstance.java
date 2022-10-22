@@ -128,7 +128,7 @@ public class ClientScriptInstance {
 			return;
 		}
 
-		this.interpreter = Interpreter.of(fileContent, this.scriptName, getApi(), ClientScriptThreadHandler::new);
+		this.interpreter = Interpreter.of(fileContent, this.scriptName, API, ClientScriptThreadHandler::new);
 
 		ThreadHandler threadHandler = this.interpreter.getThreadHandler();
 		threadHandler.addShutdownEvent(this::stopScript);
@@ -143,26 +143,7 @@ public class ClientScriptInstance {
 		return this.scriptName;
 	}
 
-	public static ArucasAPI getApi() {
-		if (API == null) {
-			load();
-		}
-		return API;
-	}
-
-	public static void addApi(ClientScriptAPI api) {
-		if (APIS == null) {
-			throw new IllegalStateException("ClientScript API has been locked, register your api earlier");
-		}
-		APIS.add(api);
-	}
-
-	public static void runFromContent(String scriptName, String scriptContent) {
-		ClientScriptInstance instance = new ClientScriptInstance(scriptName, scriptContent, null);
-		instance.toggleScript();
-	}
-
-	private static void load() {
+	public static void load() {
 		ArucasLibrary library = new ImplArucasLibrary(
 			ClientScript.INSTANCE.getLibraryDirectory()
 		);
@@ -193,13 +174,31 @@ public class ClientScriptInstance {
 			throw e;
 		}
 
-		new Thread(() -> {
-			try {
-				API.generateNativeFiles(API.getLibraryManager().getImportPath());
-			} catch (Exception e) {
-				// This isn't fatal
-				EssentialClient.LOGGER.error("Failed to generate native files", e);
-			}
-		}).start();
+		generate();
+	}
+
+	public static ArucasAPI getApi() {
+		return API;
+	}
+
+	public static void addApi(ClientScriptAPI api) {
+		if (APIS == null) {
+			throw new IllegalStateException("ClientScript API has been locked, register your api earlier");
+		}
+		APIS.add(api);
+	}
+
+	public static void runFromContent(String scriptName, String scriptContent) {
+		ClientScriptInstance instance = new ClientScriptInstance(scriptName, scriptContent, null);
+		instance.toggleScript();
+	}
+
+	private static void generate() {
+		try {
+			API.generateNativeFiles(API.getLibraryManager().getImportPath());
+		} catch (Exception e) {
+			// This isn't fatal
+			EssentialClient.LOGGER.error("Failed to generate native files", e);
+		}
 	}
 }
