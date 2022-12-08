@@ -1371,6 +1371,37 @@ fun recurse(depth) {
 recurse(0);
 ```
 
+## Iterable and Iterator
+
+It may be the case that you would like to create your own class that is functional with `foreach`, this is possible by extending the `Iterable` class and implementing the `iterator()` method in your class. This must return an `Iterator` which will be used to iterate in the `foreach`:
+
+```kotlin
+class ExampleIterator(): Iterator {
+	var exampleValue = 0;
+
+	ExampleIterator(): super();
+
+	// Overriden
+	fun hasNext() {
+		return exampleValue < 10;
+	}
+
+	// Overriden
+	fun next() {
+		return exampleValue++;
+	}
+}
+
+class ExampleIterable: Iterable {
+	fun iterator() {
+		return new ExampleIterator();
+	}
+}
+```
+
+
+
+
 ## Functions
 
 Functions are a great abstraction that we use to hide complexity and easily reuse code, functions allow you to write code that can be executed from elsewhere in your program by referencing the function's name, or identifier. 
@@ -1914,13 +1945,213 @@ if (validNames.contains(name)) {
 
 ## Errors
 
+Errors are used in a program to indicate that something has gone wrong. Error's allow for a more complex control flow as when an error is thrown it propagates directly out of function calls until the error is either caught or it stops the program.
+
 ### Creation
+
+By default there is only one `Error` class which is built-in. This class can be instantiated and can be thrown. To create an error we can simply just call the `Error` class's constructor:
+
+```java
+new Error();
+```
+
+This creates an empty error, to create an error with a message that will display on the stacktrace we can add a parameter:
+
+```java
+new Error("Something went wrong");
+```
+
+And lastly if we want to add a value to the error which we can use when the error is caught we can add a last parameter:
+
+```java
+new Error("Something went very wrong", [1, 2, 3]);
+```
+
+One last thing to mention is that the error class is extendable and when extending it will change the name of the error on the stacktrace:
+
+```
+Error: Something went wrong
+> File: console, Line: 1, Column: 1, In: throwError::0 
+1 | throwError();
+  | ^ 
+```
+
+Compared to:
+
+```
+ChildClassError: Something went very wrong
+> File: console, Line: 1, Column: 1, In: throwError::0 
+1 | throwChildClassError();
+  | ^ 
+```
 
 ### Throwing 
 
+To throw an error we simply just use the `throw` keyword. You can **only** throw objects that are of the `Error` type, this includes any child classes. If you attempt to throw a non-error type then an error will be thrown:
+
+```kotlin
+error = new Error("Something went wrong");
+throw error;
+```
+
 ### Catching
 
+As previously mentioned it's possible to catch propagating errors. This can be done with the `try catch` syntax, the `catch` must be followed by braces with a 'parameter' which will reference the error that has been caught. Any errors that happen inside a `try catch` may be caught:
+
+```kotlin
+try {
+	throw new Error();
+} catch (e) {
+	// Ignore
+}
+```
+
+You are also able to specify the type of error that you would like to catch by type hinting the parameter:
+
+```kotlin
+class CustomError: Error {
+	CustomError(): super();
+}
+
+try {
+	throw new CustomError();
+} catch (e: CustomError) {
+	print("CustomError caught");
+}
+```
+
+By doing this any other errors that are not an instance of `CustomError` would be ignored by the catch.
+
+### Finally
+
+Finally is a useful keyword, it allows for code to be executed if an error is thrown like a catch but unlike catch does not actually catch the error. This is especially useful if you need to reset or close something after running a try statement:
+
+```kotlin
+fun something() {
+	// May throw error here
+}
+
+state = false;
+
+try {
+	state = true;
+	something();
+} finally {
+	// Reset
+	state = false;
+}
+```
+
+Using finally is essentially the equivalent to:
+
+```kotlin
+try {
+	// ...
+} catch (e) {
+	// Finally code here
+	
+	// Re-throw the error
+	throw e;
+}
+```
+
+In the case that an error is not thrown the code in the finally clause will simply just execute after the try block has executed.
+
+Something to also note is that the `catch` and `finally` keywords can be used in conjunction with eachother:
+
+```kotlin
+try {
+	// ...
+} catch (e) {
+	// ...
+} finally {
+	// ...
+}
+```
+
 ## Imports
+
+Importing is a large part of almost every programming language. Importing is used to use code from other libraries so you do not need to write it yourself.
+
+Importing in Arucas is made as simple as possible, by default you will be able to import any libraries that are already built-in. For example the `Json` class from the `util.Json` module. You can import using the `import` and `from` keywords:
+
+```kotlin
+import Json from util.Json;
+```
+
+You can import specific classes from any module, and you can import multiple classes by separating them with a comma:
+
+```kotlin
+import A, B, C from abc.ABC;
+```
+
+Further if you want to import a lot of classes from a module you can instead use a `*` to indicate that you want to import all of the classes:
+
+```kotlin
+// In this case it'll only import Json as it's the only
+// Class in the module but in other cases it'll import multiple
+import * from util.Json;
+```
+
+Generally it's better to import specific classes only as it will prevent class name conflicts. And further it helps while running your code; this is because imports in Arucas are lazy. This means that imports are not evaluated immediately but only evaluated when needed. 
+
+If you reference a class that doesn't already exist in the scope then the interpreter tries to find that class in any of the imports you have, if you do not specify the class names in the import then the interpreter is forced to import everything.
+
+The reason imports are done this way is to allow for cyclical imports:
+
+```kotlin
+// File A.arucas
+
+import ClassB from B;
+
+class ClassA {
+	static fun doSomething() {
+		// ClassB is only imported once we get here
+		B.doSomething();
+	}
+}
+```
+
+```kotlin
+// File B.arucas
+
+import ClassA from A;
+
+class ClassB {
+	static fun doSomething() {
+		print("B does something!");
+	}
+}
+
+// ClassA is only imported once we get here
+ClassA.doSomething(); // prints 'B does something'
+```
+
+One important thing to note is that you can only import classes from different files and you cannot directly import global variables or functions, although you can simply just use static variables or static functions to achieve the same behaviour.
+
+## Libraries
+
+The ability to import other classes would be quite useless to only import built-in classes so Arucas allows you to import classes from a library repository (which can be found [here](https://github.com/senseiwells/ArucasLibraries)). To import these you just simply import any class from the given module, the libraries will be automatically downloaded given you have an internet connection.
+
+For example if I wanted to import [`ImmutableList`](https://github.com/senseiwells/ArucasLibraries/blob/master/libs/util/Collections.arucas#L464-L518):
+
+```kotlin
+import ImmutableList from util.Collections;
+```
+
+If you have made a library you are welcome to create a pull request to submit the library so that other users can use your code!
+
+## Local
+
+Libraries by default are stored in `C:/Users/<user>/.arucas/libs`, this may differ if you are using Arucas embedded in another application. This folder also contains stubs for the built-in classes and built-in functions with their documentation.
+
+Arucas will automatically update any libraries when you import them, if for some reason you would prefer for this not to happen you can use the `local` keyword to prevent Arucas from checking the repository for updates:
+
+```kotlin
+import local ImmutableList from util.Collections;
+```
+
+Similarly you can use this to keep local dependancies. You can leave your local dependancy in the `libs` folder and by using the `local` keyword Arucas will skip checking the repository speeding up your import.
 
 ## Classes
 
@@ -2333,7 +2564,26 @@ class Child: Parent, A, B {
 
 ## Enums
 
+Enums provide a nice way to program constants. This is done by using an enum class which can be declared using the `enum` keyword, much like a regular class enums can have defined methods and fields.
+
 ### Syntax
+
+The syntax to declare an enum class is very simple, just the `enum` keyword followed by the enum name, then inside your backets you can define your constants separated by commas:
+
+```kotlin
+enum Direction {
+	NORTH, EAST, SOUTH, WEST
+}
+```
+
+These can then just be simply accessed like a static field:
+
+```kotlin
+Direction.NORTH;
+Direction.EAST;
+Direction.SOUTH;
+Direction.WEST;
+```
 
 ### Constructors
 
@@ -2391,38 +2641,28 @@ if (jBoolean.toArucas()) {
 ```
 You are also able to call methods with parameters the same way you would call an Arucas function, however the types of the values must match the method signature, the arguments you pass in should generally be Java typed.
 
-Something to note about methods is that they use the Java reflection library internally, which makes calling Java methods quite slow. On a small scale this is fine, however if you plan to repeatedly call a method you should consider delegating the method. When the method is delegated, the Internal library creates a `MethodHandle` which is significantly faster.
-```kotlin
-import Java from util.Internal;
-
-jString = Java.valueOf("");
-delegate = jString.isBlank;
-
-for (i = 0; i < 100; i++) {
-    delegate();
-}
-```
-
 Accessing fields is also similar to Arucas this can be done by just using the dot operator:
 ```kotlin
 import Java from util.Internal;
 
 array = Java.arrayOf();
-// length field of Java array type
+// 'length' field of Java array type
 array.length;
 ```
 
 ### Constructing Java Objects
 
-Now this is great, but what if we want to construct a Java Object? Well we can use `Java.constructClass()`, this method takes in the class name and then any amount of parameters:
+Now this is great, but what if we want to construct a Java Object? Well we can get the Java class which we can then use to call a construtor. We can get the Java class with the `Java.classOf()` method and passing in the class name as a parameter:
+
 ```kotlin
 import Java from util.Internal;
 
-ArrayList = "java.util.ArrayList";
+ArrayList = Java.classOf("java.util.ArrayList");
 
-// From looking at Java code this would invoke the
-// constructor with no parameters
-jList = Java.constructClass(ArrayList);
+// We can then just construct the ArrayList object
+// by calling the class. We do NOT need the new keyword
+// here because we are not creating a new Arucas object.
+jList = ArrayList();
 
 // Adding Java Strings into ArrayList
 jList.add("One"); 
@@ -2465,21 +2705,21 @@ Java.functionOf(fun(arg) {
 
 ### Static Methods and Fields
 
-Now we know how we can construct objects and call their methods in Java, what about static methods and fields? Well, this is done again through the Java class with a static method:
+Now we know how we can construct objects and call their methods in Java, what about static methods and fields? Well, similarly to how we constructed an object if we get the Java class we can simply just call the methods on this object:
 ```kotlin
 import Java from util.Internal;
 
-Integer = "java.lang.Integer";
+Integer = Java.classOf("java.lang.Integer");
 
-// Class name, method name, parameters...
-Java.callStaticMethod(Integer, "parseInt", "120");
+// Method call...
+Integer.parseInt("120");
 
-// Class name, field name
-Java.getStaticField(Integer, "MAX_VALUE");
+// Field access...
+Integer.MAX_VALUE;
 
-// Class name, field name, new value (must be correct type)
+// Field assignment...
 // Obviously this won't work, but it's just an example
-Java.setStaticField(Integer, "MAX_VALUE", Java.intOf(100));"
+Integer.MAX_VALUE = Java.intOf(100);
 ```
 
 
@@ -6653,6 +6893,7 @@ screen.tradeIndex(0);
 
 ### `<MerchantScreen>.tradeSelected()`
 - Description: This trades the currently selected trade.
+This function accepts optional boolean to simulate click action even if screen is not synced or filled.
 You must be inside the merchant GUI or an error will be thrown
 - Example:
 ```kotlin
@@ -6661,6 +6902,7 @@ screen.tradeSelected();
 
 ### `<MerchantScreen>.tradeSelectedAndThrow()`
 - Description: This trades the currently selected trade and throws the items that were traded.
+This function accepts optional boolean to simulate click action even if screen is not synced or filled.
 You must be inside the merchant GUI or an error will be thrown
 - Example:
 ```kotlin

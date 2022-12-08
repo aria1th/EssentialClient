@@ -1917,12 +1917,12 @@
   "Method <MerchantScreen>.tradeSelected()": {
     "prefix": ".tradeSelected()",
     "body": ".tradeSelected()",
-    "description": "<MerchantScreen>.tradeSelected()\nThis trades the currently selected trade.\nYou must be inside the merchant GUI or an error will be thrown\n"
+    "description": "<MerchantScreen>.tradeSelected()\nThis trades the currently selected trade.\nThis function accepts optional boolean to simulate click action even if screen is not synced or filled.\nYou must be inside the merchant GUI or an error will be thrown\n"
   },
   "Method <MerchantScreen>.tradeSelectedAndThrow()": {
     "prefix": ".tradeSelectedAndThrow()",
     "body": ".tradeSelectedAndThrow()",
-    "description": "<MerchantScreen>.tradeSelectedAndThrow()\nThis trades the currently selected trade and throws the items that were traded.\nYou must be inside the merchant GUI or an error will be thrown\n"
+    "description": "<MerchantScreen>.tradeSelectedAndThrow()\nThis trades the currently selected trade and throws the items that were traded.\nThis function accepts optional boolean to simulate click action even if screen is not synced or filled.\nYou must be inside the merchant GUI or an error will be thrown\n"
   },
   "MinecraftClient Class": {
     "prefix": "MinecraftClient",
