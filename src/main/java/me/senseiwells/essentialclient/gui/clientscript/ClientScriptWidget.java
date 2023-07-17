@@ -13,12 +13,14 @@ import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static me.senseiwells.essentialclient.utils.render.Texts.*;
 
 public class ClientScriptWidget extends ElementListWidget<ClientScriptWidget.ScriptListEntry> {
 	private final ClientScriptScreen parent;
+	private static final HashSet<String> debugStrings = new HashSet<>();
 
 	public ClientScriptWidget(MinecraftClient minecraftClient, ClientScriptScreen scriptScreen) {
 		super(minecraftClient, scriptScreen.width + 45, scriptScreen.height, 43, scriptScreen.height - 32, 20);
@@ -95,15 +97,21 @@ public class ClientScriptWidget extends ElementListWidget<ClientScriptWidget.Scr
 
 		@Override
 		public void render(RenderContextWrapper wrapper, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-			wrapper.drawTextWithShadow(this.client.textRenderer, Texts.literal(this.name), x - 50, y + ClientScriptWidget.this.height / 2 - 9 / 2, 16777215);
-			WidgetHelper.setPosition(this.checkButton, x + width - 20, y);
-			WidgetHelper.setPosition(this.startButton, x + width - 70, y);
-			WidgetHelper.setPosition(this.configButton, x + width - 120, y);
+			wrapper.drawTextWithShadow(this.client.textRenderer, Texts.literal(this.name), x - 50, y , 16777215);
+			WidgetHelper.setPosition(this.checkButton, x + 70, y);
+			WidgetHelper.setPosition(this.startButton, x + 100, y);
+			WidgetHelper.setPosition(this.configButton, x + 150, y);
 			this.startButton.active = this.client.player != null;
 			this.startButton.setMessage(this.scriptInstance.isScriptRunning() ? STOP : START);
 			this.configButton.render(wrapper.getContext(), mouseX, mouseY, tickDelta);
 			this.startButton.render(wrapper.getContext(), mouseX, mouseY, tickDelta);
 			this.checkButton.render(wrapper.getContext(), mouseX, mouseY, tickDelta);
 		}
+	}
+	private static void debug(String string) {
+		if (debugStrings.contains(string))
+			return;
+		debugStrings.add(string);
+		System.out.println(string);
 	}
 }
